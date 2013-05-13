@@ -1,0 +1,9 @@
+Codename: pandora
+Suite: precise
+Version: 13.06
+Origin: LliureX
+Label: LliureX
+Description: LliureX Distribution Packages
+Architectures: i386 amd64 source
+Components: main restricted universe multiverse partner
+Update: - pandora

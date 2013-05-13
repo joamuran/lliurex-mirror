@@ -1,0 +1,169 @@
+#!/bin/bash
+#
+# This script is licensed under GPL v3 or higher
+# Author: Angel Berlanas Vicente <angel.berlanas@gmail.com>
+# The chosen language is BASH...Why?
+# Some reasons:
+# 	- BASH is powerfull and allows quickly development...
+# 	- The comandline power burns in our fingers
+# 	- reprepro commands are always for Systems Adminstrators and
+# 	  bindings for other languages are not in their develpment line.
+#	- BASH is for me! I love it and it loves me.
+# 	- Frankenstein monster one of my favorites... ^_^ 
+#	- Search, compare and if you want something better ... programalo yourself!	
+
+#### Colors for terminal #####
+# Some colors
+# Reset
+Color_Off='\e[0m'       		# Text Reset
+
+# Regular Colors
+Black='\e[0;30m'        		# Black
+Red='\e[0;31m'          		# Red
+Green='\e[0;32m'        		# Green
+Yellow='\e[0;33m'       		# Yellow
+Blue='\e[0;34m'         		# Blue
+Purple='\e[0;35m'       		# Purple
+Cyan='\e[0;36m'         		# Cyan
+White='\e[0;37m'        		# White
+
+#####
+
+# VALUES #
+
+MIRROR_DIR="/net/mirror/llx1306"
+TEMPLATES_DIR="/usr/share/lliurex-mirror/templates"
+HTTP_DIR="/var/www/llx1306"
+LOG_FILE="/var/log/lliurex/lliurex-mirror.log"
+LOCK_FILE="/net/mirror/llx1306/db/lockfile"
+#########
+
+
+
+get_status()
+{
+	# Is the current distribution being update now?
+	if [ -f "$MIRROR_DIR/db/lockfile" ] ; then
+		echo "{'status':'busy','msg':'reprepro is running'}"
+	else
+		# You can access the data with: exec("ret="+"plugin.isalive()[status]")
+		echo "{'status':'available','msg':'mirror is ready'}"
+	fi
+}
+
+_die()
+{
+	echo "[ERROR] $1"
+	exit 1
+}
+
+_printf()
+{
+	if [ $(basename $0) = "lliurex_mirror_non_gtk" ] ; then
+		echo -e "[ LliureX Mirror ] : $1"
+	else
+		echo -e "[$Blue LliureX Mirror $Color_Off] : $Cyan $1 $Color_Off"
+	fi
+}
+
+
+_do_sanity_checks()
+{	
+	# Test if directories exists?
+	_printf "Test $MIRROR_DIR"
+	[ -d "$MIRROR_DIR" ] || mkdir -p "$MIRROR_DIR"
+	[ -d "$MIRROR_DIR/conf" ] || mkdir -p "$MIRROR_DIR/conf" 	
+	[ -f "$MIRROR_DIR/conf/distributions" -a -f "$MIRROR_DIR/conf/updates" ] || cp "$TEMPLATES_DIR/distributions"  "$MIRROR_DIR/conf/" && cp "$TEMPLATES_DIR/updates" "$MIRROR_DIR/conf/"
+	
+	# Now all exists... but... is repreprepro ready?
+	_printf "* - Reprepro - checkpool"
+	_printf "reprepro -b $MIRROR_DIR checkpool"
+}
+
+_do_update()
+{
+	# Update the mirror
+	_printf "* - Reprepro - update"
+	reprepro -b $MIRROR_DIR --show-percent update 2>&1 
+	reprepro -b $MIRROR_DIR --show-percent retrack
+	reprepro -b $MIRROR_DIR --show-percent export
+
+	# Vanilla percent
+	#	for i in $(seq 1 100); do _printf $i%; done
+
+	_printf "* - Finished - "
+	if [ ! -L "$HTTP_DIR" ] ; then
+		mkdir -p "/var/www/"
+		ln -s "$MIRROR_DIR" "$HTTP_DIR"
+	fi
+	_printf "* - link is now ready"
+	
+	[ -f $LOG_FILE ] || mkdir -p /var/log/lliurex/
+	echo "$(date +"%s");Mirror is done" > $LOG_FILE
+	echo "$(du -hs /net/mirror/llx1306); Size is" >> $LOG_FILE
+}
+
+_get_the_unix_date()
+{
+	# Test if the file exists
+ 	[ -f "$LOG_FILE" ] || _die "Not log"
+	# Get the Value
+    UNIX_DATE=$(head -1 $LOG_FILE | cut -d ";" -f1)
+	# Return as a python dic
+	echo "{'status'='True','date'='$UNIX_DATE'}"
+}	
+
+_do_test()
+{
+	# Test the database status
+	if [ -e "$LOCK_FILE" ] ; then
+		_printf "* [ LliureX Mirror ] The database is locked! The reprepro is running "
+	fi 
+	
+	# Test the mirror presence on apache
+	if [ -L "$HTTP_DIR" ] ; then
+		_printf "* - /var/www is created"
+	else
+		_printf "* - http server link is not present"
+	fi
+	
+	# Test the last log
+	if [ -e "$LOG_FILE" ] ; then
+		_printf "$(cat $LOG_FILE)"
+	else
+		_printf " - Log File at $LOG_FILE is not ready "
+	fi
+}
+
+#MAIN
+
+ACTION=$1
+shift
+
+case $ACTION in
+	n4dupdate)
+		_do_sanity_checks
+		_do_update
+		_do_test
+		;;
+	n4d_get_unix_date)
+		_get_the_unix_date
+		;;
+	get_status)
+		get_status
+		;;
+		
+	update)	
+		_do_sanity_checks	
+		_do_update	
+		_do_test	
+		;;
+	
+	test)
+		_do_test
+	;;
+	*)
+	;;
+esac
+
+exit 0

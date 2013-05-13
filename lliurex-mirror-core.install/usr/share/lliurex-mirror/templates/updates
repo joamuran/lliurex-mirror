@@ -1,0 +1,6 @@
+Name: pandora
+Method: http://lliurex.net/pandora/
+Suite: pandora
+Components: main universe restricted multiverse partner
+Architectures: i386 amd64 source
+VerifyRelease: blindtrust
