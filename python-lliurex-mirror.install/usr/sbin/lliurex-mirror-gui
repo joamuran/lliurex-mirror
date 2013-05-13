@@ -1,0 +1,11 @@
+#!/bin/bash
+
+rc=0
+zenity --question --text="Do you mirror?" || rc=1
+
+if [ $rc -eq 0 ] ; then
+
+	lliurex-mirror-non-gtk update
+	
+fi
+exit 0
