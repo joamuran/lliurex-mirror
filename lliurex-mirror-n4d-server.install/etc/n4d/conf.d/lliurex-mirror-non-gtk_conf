@@ -1,0 +1,10 @@
+[SETUP]
+type=binary
+path=lliurex_mirror_non_gtk
+class=LliurexMirror
+perms=adm,admins,admin
+[METHODS]
+n4dupdate=adm,admins,admin
+n4d_get_unix_date=anonymous
+get_status=anonymous
+test=anonymous
