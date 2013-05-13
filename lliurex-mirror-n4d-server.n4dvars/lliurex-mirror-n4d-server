@@ -1,0 +1,19 @@
+{
+    "MIRROR_LAST_UPDATE": {
+        "function": "lliurex.variables.mirror_last_update.init", 
+        "packages": [
+            "lliurex-mirror-n4d-server"
+        ], 
+        "description": "Date of the last mirror replenish", 
+        "value": null
+    }, 
+    "MIRROR_ENABLED": {
+        "function": "lliurex.variables.mirror_enabled.init", 
+        "packages": [
+            "lliurex-mirror-n4d-server"
+        ], 
+        "description": "Is the mirror active?", 
+        "value": null
+    }
+}
+
