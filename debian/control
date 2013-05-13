@@ -1,0 +1,36 @@
+Source: lliurex-mirror
+Section: python
+Priority: optional
+Maintainer: Equipo LliureX <lliurex@gva.es>
+Uploaders: Angel Berlanas Vicente <lliurex_devel2@edu.gva.es>, Raul Rodrigo Segura <lliurex_devel3@edu.gva.es>, David Montalva Furio <montalva_dav@gva.es>, Alfons Lloret Sananton <lliurex_devel5@edu.gva.es>, Enrique Medina Gremaldos <lliurex_devel4@edu.gva.es>, Hector Garcia Huerta <lliurex_devel1@edu.gva.es>, Jose Carlos Garcia Monsalvez <garcia_josmon@gva.es>, Jaime Munyoz Fayos <munyoz_jaifay@gva.es>, Miguel Garcia Gomez <garcia_miggom@gva.es>
+Build-Depends: debhelper (>= 7.0), n4d-dev
+Standards-Version: 3.9.3
+
+Package: lliurex-mirror-core
+Architecture: all
+Depends: reprepro, ${misc:Depends}
+Suggests: zero-center
+Description: LliureX Mirror
+ lliurex-mirror provides a binary and n4d plugin
+ server
+
+Package: lliurex-mirror-n4d-server
+Architecture: all
+Depends: n4d, lliurex-mirror-core, ${misc:Depends}, python-llxvars (>= 0.4)
+Description: LliureX Mirror - N4D plugin
+ lliurex-mirror provides a n4d plugin
+
+
+Package: python-lliurex-mirror
+Architecture: all
+Depends: lliurex-mirror-core, ${misc:Depends}, ${python:Depends}
+Description: LliureX Mirror - Python
+ lliurex-mirror provides a GUI plugin
+
+
+Package: python3-lliurex-mirror
+Architecture: all
+Depends: lliurex-mirror-core, ${misc:Depends}, ${python:Depends}
+Description: LliureX Mirror - Python
+ lliurex-mirror provides a GUI plugin
+
