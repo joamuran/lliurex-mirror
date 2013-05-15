@@ -40,6 +40,20 @@ LOCK_FILE="/net/mirror/llx1306/db/lockfile"
 
 
 
+# N4D Mirror Methods
+_prepare_log(){
+	# Clean log file
+	[ ! -e /tmp/n4drmirror.log ] || rm  -f /tmp/n4drmirror.log
+}
+
+_exist_log_file(){
+	if [ -e /tmp/n4drmirror.log ] ; then
+		echo "True"
+	else
+		echo "False"
+	fi
+}
+
 get_status()
 {
 	# Is the current distribution being update now?
@@ -110,7 +124,7 @@ _get_the_unix_date()
 	# Get the Value
     UNIX_DATE=$(head -1 $LOG_FILE | cut -d ";" -f1)
 	# Return as a python dic
-	echo "{'status'='True','date'='$UNIX_DATE'}"
+	echo "{'status':'True','date':'$UNIX_DATE'}"
 }	
 
 _do_test()
@@ -142,9 +156,14 @@ shift
 
 case $ACTION in
 	n4dupdate)
+		# Redirecting to log file
+		exec >  >(tee -a /tmp/n4drmirror.log)
+		exec 2> >(tee -a /tmp/n4drmirror.log >&2)
+		
 		_do_sanity_checks
 		_do_update
 		_do_test
+		echo "End n4dmirrorupdate !" >&2
 		;;
 	n4d_get_unix_date)
 		_get_the_unix_date
@@ -152,11 +171,16 @@ case $ACTION in
 	get_status)
 		get_status
 		;;
-		
 	update)	
 		_do_sanity_checks	
 		_do_update	
 		_do_test	
+		;;
+	prepare_log)
+		_prepare_log
+		;;
+	exist_log_file)
+		_exist_log_file
 		;;
 	
 	test)
